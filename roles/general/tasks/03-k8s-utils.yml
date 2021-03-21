@@ -1,0 +1,32 @@
+---
+- name: Remove swapfile
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  vars:
+    item:
+      - swap
+      - none
+
+- name: Disable swap
+  shell: swapoff -a
+
+- name: Add an apt signing key for Kubernetes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Adding apt repository for Kubernetes
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: kubernetes.list
+
+- name: Install and hold versions of Kubernetes binaries
+  apt:
+    name: "{{ item }}={{ k8s_version }}-00"
+    state: present
+    update_cache: yes
+  loop: [kubeadm, kubectl, kubelet]
+  notify: restart kubelet

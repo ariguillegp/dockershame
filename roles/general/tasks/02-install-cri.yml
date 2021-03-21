@@ -1,0 +1,55 @@
+---
+- name: Load overlay and br_netfilter modules
+  shell: |
+    modprobe overlay
+    modprobe br_netfilter
+
+- name: Persisting overlay and br_netfilter modules
+  template:
+    src: files/containerd.conf
+    dest: "/etc/modules-load.d/containerd.conf"
+
+- name: Copy bridge configuration
+  template:
+    src: files/kubernetes.conf
+    dest: "/etc/sysctl.d/kubernetes.conf"
+
+- name: Update sysctl configuration
+  shell: sysctl --system
+
+- name: Add an apt signing key for Docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add apt repository for stable version
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Install containerd
+  apt:
+    name: containerd.io
+    state: present
+    update_cache: yes
+
+- name: Create containerd config directory
+  file:
+    path: /etc/containerd
+    state: directory
+
+- name: Add containerd config file
+  shell: |
+    containerd config default | tee /etc/containerd/config.toml
+
+- name: Use systemd cgroup driver for containerd
+  lineinfile:
+    path: /etc/containerd/config.toml
+    insertafter: 'containerd\.runtimes\.runc\.options'
+    line: "            systemd_cgroup = true"
+    firstmatch: yes
+    state: present
+
+- name: Restart containerd service
+  shell: |
+    systemctl restart containerd

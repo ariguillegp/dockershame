@@ -1,0 +1,32 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: {{ node_ip }}
+  bindPort: 6443
+nodeRegistration:
+  name: "cluster-master"
+  criSocket: "/run/containerd/containerd.sock"
+  kubeletExtraArgs:
+    cgroup-driver: "systemd"
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+clusterName: "vagrant-cluster"
+networking:
+  podSubnet: {{ pod_subnet }}
+  serviceSubnet: {{ service_subnet }}
+  dnsDomain: {{ dns_domain }}
+controlPlaneEndpoint: "{{ node_ip }}:6443"
+apiServer:
+  extraArgs:
+    authorization-mode: "Node,RBAC"
+    advertise-address: {{ node_ip }}
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+# driver that the kubelet uses to manipulate cgroups on the host (cgroupfs or systemd)
+# Dynamic Kubelet Config (beta): This field should not be updated without a full node
+# reboot. It is safest to keep this value the same as the local config.
+# Default: "cgroupfs"
+cgroupDriver: systemd
