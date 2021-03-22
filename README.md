@@ -3,7 +3,8 @@
 This project will create a k8s cluster in your machine using virtualbox as your hypervisor
 and it will be fully automated via kubeadm, ansible and vagrant. The default scenario will deploy
 one master node and 2 workers, but it can be easily escalated as long as you have the hardware
-resources to do so. The default container runtime is containerd but it can be changed to CRI-O.
+resources to do so. The default base operating system for your cluster nodes will be Ubuntu 20.04
+and the container runtime is going to be containerd but it can be changed to CRI-O.
 
 Everything was tested on a machine running Archlinux, but theoretically it will work on a variety
 of other platforms as long as the minimum requirements are satisfied.
