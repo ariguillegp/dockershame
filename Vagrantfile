@@ -1,15 +1,21 @@
-image = "ubuntu/focal64"
-workers = 2
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
 
-Vagrant.configure("2") do |config|
+VAGRANTFILE_API_VERSION = "2"
+BASE_IMAGE = "ubuntu/focal64"
+NUM_WORKERS = 2
+
+# Global configuration
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+    config.vm.box = BASE_IMAGE
     config.ssh.insert_key = false
     config.vm.provider "virtualbox" do |v|
         v.memory = 2048
         v.cpus = 2
     end
 
+    # K8s master node
     config.vm.define "master" do |master|
-        master.vm.box = image
         master.vm.network "private_network", ip: "10.18.0.11"
         master.vm.hostname = "cluster-master"
         master.vm.provision "ansible" do |ansible|
@@ -24,9 +30,9 @@ Vagrant.configure("2") do |config|
         end
     end
 
-    (1..workers).each do |i|
+    # K8s worker nodes
+    (1..NUM_WORKERS).each do |i|
         config.vm.define "worker#{i}" do |worker|
-            worker.vm.box = image
             worker.vm.network "private_network", ip: "10.18.0.#{i + 11}"
             worker.vm.hostname = "cluster-worker#{i}"
             worker.vm.provision "ansible" do |ansible|
