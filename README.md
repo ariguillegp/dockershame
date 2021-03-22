@@ -1,11 +1,38 @@
-# Overview
+# Dockershame
 
 This project will create a k8s cluster in your machine using virtualbox as your hypervisor
 and it will be fully automated via kubeadm, ansible and vagrant. The default scenario will deploy
 one master node and 2 workers, but it can be easily escalated as long as you have the hardware
-resources to do so. Here you have some useful commands to understand the environment:
+resources to do so. The default container runtime is containerd but it can be changed to CRI-O.
+
+Everything was tested on a machine running Archlinux, but theoretically it will work on a variety
+of other platforms as long as the minimum requirements are satisfied.
+
+## Getting Started
+
+Once you've fulfilled the requirements, just clone the project, move to its root and run:
 
 ```
+$ vagrant up
+```
+
+### Prerequisites
+
+The general requirements to get this project running are ansible, virtualbox and vagrant.
+
+### Installing
+
+```
+# Ansible
+$ sudo pacman -S --noconfirm --needed ansible sshpass
+
+# Virtualbox
+$ sudo pacman -S --noconfirm --neded virtualbox virtualbox-host-modules-arch virtualbox-guest-iso
+$ yay -S virtualbox-ext-oracle
+
+# Vagrant
+$ sudo pacman -S --noconfirm --needed vagrant
+
 $ vagrant up
 # Once cluster done, you can list the VMs
 $ vagrant status
@@ -21,3 +48,12 @@ $ vagrant ssh worker2
 vagrant@master:~$ kubectl get no
 vagrant@master:~$ kubectl get po -A
 ```
+
+## Authors
+
+* [Aristides Gonzalez](https://github.com/ariguillegp)
+
+## Inspiration
+
+* https://kubernetes.io/blog/2019/03/15/kubernetes-setup-using-ansible-and-vagrant/
+* https://github.com/walidshaari/Certified-Kubernetes-Security-Specialist
