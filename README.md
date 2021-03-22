@@ -33,6 +33,10 @@ $ yay -S virtualbox-ext-oracle
 # Vagrant
 $ sudo pacman -S --noconfirm --needed vagrant
 
+# You can select the CRI by changing the value of the variable
+# cri in the file vars/main.yml, the possible values so far are
+# containerd and crio
+
 $ vagrant up
 # Once cluster done, you can list the VMs
 $ vagrant status
