@@ -1,46 +1,81 @@
 ---
+- name: Persisting overlay and br_netfilter modules
+  template:
+    src: files/cri.conf
+    dest: "/etc/modules-load.d/cri.conf"
+
 - name: Load overlay and br_netfilter modules
   shell: |
     modprobe overlay
     modprobe br_netfilter
 
-- name: Persisting overlay and br_netfilter modules
-  template:
-    src: files/containerd.conf
-    dest: "/etc/modules-load.d/containerd.conf"
-
 - name: Copy bridge configuration
   template:
-    src: files/kubernetes.conf
-    dest: "/etc/sysctl.d/kubernetes.conf"
+    src: files/kubernetes-cri.conf
+    dest: "/etc/sysctl.d/kubernetes-cri.conf"
 
 - name: Update sysctl configuration
   shell: sysctl --system
+
+- name:  Add apt repo for CRI-O
+  shell: |
+    cat <<EOF | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+    deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ OS }}/ /
+    EOF
+    cat <<EOF | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ VERSION }}.list
+    deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ VERSION }}/{{ OS }}/ /
+    EOF
+  when: cri == "crio"
+
+- name: Add an apt signing key for CRI-O
+  shell: |
+    curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ OS }}/Release.key | sudo apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers.gpg add -
+    curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ VERSION }}/{{ OS }}/Release.key | sudo apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg add -
+  when: cri == "crio"
+
+- name: Install CRI-O
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: [cri-o, cri-o-runc]
+  when: cri == "crio"
+
+- name: CRI-O service
+  shell: |
+    systemctl daemon-reload
+    systemctl enable crio --now
+  when: cri == "crio"
 
 - name: Add an apt signing key for Docker
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
+  when: cri == "containerd"
 
 - name: Add apt repository for stable version
   apt_repository:
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
     state: present
+  when: cri == "containerd"
 
 - name: Install containerd
   apt:
     name: containerd.io
     state: present
     update_cache: yes
+  when: cri == "containerd"
 
 - name: Create containerd config directory
   file:
     path: /etc/containerd
     state: directory
+  when: cri == "containerd"
 
 - name: Add containerd config file
   shell: |
     containerd config default | tee /etc/containerd/config.toml
+  when: cri == "containerd"
 
 - name: Use systemd cgroup driver for containerd
   lineinfile:
@@ -49,7 +84,9 @@
     line: "            systemd_cgroup = true"
     firstmatch: yes
     state: present
+  when: cri == "containerd"
 
 - name: Restart containerd service
   shell: |
     systemctl restart containerd
+  when: cri == "containerd"
