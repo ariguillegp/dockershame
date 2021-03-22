@@ -54,6 +54,10 @@ vagrant@master:~$ kubectl get no
 vagrant@master:~$ kubectl get po -A
 ```
 
+### TODOs:
+
+* Add [cilium](https://cilium.io/) as another CNI option
+
 ## Authors
 
 * [Aristides Gonzalez](https://github.com/ariguillegp)
