@@ -1,0 +1,5 @@
+---
+network: "calico" # working on adding cilium soon as an option
+pod_subnet: "192.168.0.0/17"
+service_subnet: "192.168.128.0/17"
+dns_domain: "cluster.local"

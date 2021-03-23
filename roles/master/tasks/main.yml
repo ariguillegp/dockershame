@@ -19,11 +19,18 @@
   register: join_command
 
 - name: Copy join command
-  local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join"
   become: false
+  local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join"
 
-- name: Deploy Calico to cluster
+- name: Enable kubectl autocompletion
+  shell:
+    cmd: kubectl completion bash > /etc/bash_completion.d/kubectl
+    # If you do not want to run this when the file already exists, add
+    creates: /etc/bash_completion.d/kubectl
+
+- name: Deploy Calico CNI
+  become: false
   command: >
-    kubectl --kubeconfig /home/vagrant/.kube/config create -f
+    kubectl --kubeconfig /home/vagrant/.kube/config apply -f
     https://docs.projectcalico.org/manifests/calico.yaml
   when: network == "calico"

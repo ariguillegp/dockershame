@@ -23,9 +23,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             ansible.extra_vars = {
                 node: "master",
                 node_ip: "10.18.0.11",
-                pod_subnet: "192.168.0.0/17",
-                service_subnet: "192.168.128.0/17",
-                dns_domain: "cluster.local",
             }
         end
     end

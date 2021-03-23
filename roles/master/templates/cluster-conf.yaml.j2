@@ -12,11 +12,11 @@ nodeRegistration:
   # of the group variable cri
   # defaults to containerd socket
 {% if cri == "containerd" %}
-criSocket: "/run/containerd/containerd.sock"
+  criSocket: "/run/containerd/containerd.sock"
 {% elif cri == "crio" %}
-criSocket: "/var/run/crio/crio.sock"
+  criSocket: "/var/run/crio/crio.sock"
 {% else %}
-criSocket: "/run/containerd/containerd.sock"
+  criSocket: "/run/containerd/containerd.sock"
 {% endif %}
 ---
 apiVersion: kubeadm.k8s.io/v1beta2
