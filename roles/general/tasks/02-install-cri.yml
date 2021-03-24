@@ -17,20 +17,22 @@
 - name: Update sysctl configuration
   shell: sysctl --system
 
-- name: Add apt repo for CRI-O
-  shell: |
-    cat <<EOF | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-    deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ OS }}/ /
-    EOF
-    cat <<EOF | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:{{ VERSION }}.list
-    deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ VERSION }}/{{ OS }}/ /
-    EOF
+- name: Add an apt signing key for CRI-O
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  loop:
+    - "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ OS }}/Release.key"
+    - "https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ VERSION }}/{{ OS }}/Release.key"
   when: cri == "crio"
 
-- name: Add an apt signing key for CRI-O
-  shell: |
-    curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ OS }}/Release.key | sudo apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers.gpg add -
-    curl -L https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:{{ VERSION }}/{{ OS }}/Release.key | sudo apt-key --keyring /etc/apt/trusted.gpg.d/libcontainers-cri-o.gpg add -
+- name: Add apt repositories for CRI-O v{{ VERSION }} version
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  loop:
+    - "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/{{ OS }}/ /"
+    - "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/{{ VERSION }}/{{ OS }}/ /"
   when: cri == "crio"
 
 - name: Install CRI-O
