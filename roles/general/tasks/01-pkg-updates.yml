@@ -10,5 +10,6 @@
       - apt-transport-https
       - ca-certificates
       - curl
+      - gnupg-agent
     state: present
     update_cache: yes
