@@ -13,9 +13,9 @@
   shell: swapoff -a
 
 - name: Add an apt signing key for Kubernetes
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    state: present
+  become: true
+  shell: |
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
 
 - name: Adding apt repository for Kubernetes
   apt_repository:
@@ -27,6 +27,6 @@
   apt:
     name: "{{ item }}={{ k8s_version }}-00"
     state: present
-    update_cache: yes
+    update_cache: true
   loop: [kubeadm, kubectl, kubelet]
   notify: restart kubelet

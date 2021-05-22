@@ -1,7 +1,7 @@
 ---
 - name: Installation and Configuration of k8s cluster
   hosts: all
-  become: yes
+  become: true
   gather_facts: true
 
   roles:

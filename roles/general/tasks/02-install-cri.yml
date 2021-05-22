@@ -39,7 +39,7 @@
   apt:
     name: "{{ item }}"
     state: present
-    update_cache: yes
+    update_cache: true
   loop: [cri-o, cri-o-runc]
   when: cri == "crio"
 
@@ -65,7 +65,7 @@
   apt:
     name: containerd.io
     state: present
-    update_cache: yes
+    update_cache: true
   when: cri == "containerd"
 
 - name: Create containerd config directory
@@ -84,7 +84,7 @@
     path: /etc/containerd/config.toml
     insertafter: 'containerd\.runtimes\.runc\.options'
     line: "            systemd_cgroup = true"
-    firstmatch: yes
+    firstmatch: true
     state: present
   when: cri == "containerd"
 

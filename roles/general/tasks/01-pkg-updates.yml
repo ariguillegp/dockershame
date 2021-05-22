@@ -2,7 +2,7 @@
 - name: Update and upgrade apt packages
   apt:
     upgrade: dist
-    update_cache: yes
+    update_cache: true
 
 - name: Install required packages
   apt:
@@ -12,4 +12,4 @@
       - curl
       - gnupg-agent
     state: present
-    update_cache: yes
+    update_cache: true
